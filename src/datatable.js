@@ -98,7 +98,7 @@ export class DataTable {
         this.loading = false;
         if (this.showInclude == false) {
           this.data = result;
-          // this.pager.resource = result;
+          this.pager.resource = result;
         } else {
           var temp = [];
           result.forEach(item => {
@@ -112,7 +112,7 @@ export class DataTable {
             })
           })
           this.data = temp;
-          // this.pager.resource = temp;
+          this.pager.resource = temp;
         }
         // this.data = result;
       })

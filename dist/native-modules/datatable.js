@@ -158,6 +158,7 @@ export let DataTable = (_dec = customElement('datatable'), _dec2 = resolvedView(
       this.loading = false;
       if (this.showInclude == false) {
         this.data = result;
+        this.pager.resource = result;
       } else {
         var temp = [];
         result.forEach(item => {
@@ -171,6 +172,7 @@ export let DataTable = (_dec = customElement('datatable'), _dec2 = resolvedView(
           });
         });
         this.data = temp;
+        this.pager.resource = temp;
       }
     }).catch(error => {
       this.loading = false;

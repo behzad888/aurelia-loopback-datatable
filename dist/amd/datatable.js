@@ -187,6 +187,7 @@ define(['exports', 'aurelia-dependency-injection', 'aurelia-binding', 'aurelia-t
         _this.loading = false;
         if (_this.showInclude == false) {
           _this.data = result;
+          _this.pager.resource = result;
         } else {
           var temp = [];
           result.forEach(function (item) {
@@ -200,6 +201,7 @@ define(['exports', 'aurelia-dependency-injection', 'aurelia-binding', 'aurelia-t
             });
           });
           _this.data = temp;
+          _this.pager.resource = temp;
         }
       }).catch(function (error) {
         _this.loading = false;

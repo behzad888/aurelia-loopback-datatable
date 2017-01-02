@@ -180,6 +180,7 @@ var DataTable = exports.DataTable = (_dec = (0, _aureliaTemplating.customElement
       _this.loading = false;
       if (_this.showInclude == false) {
         _this.data = result;
+        _this.pager.resource = result;
       } else {
         var temp = [];
         result.forEach(function (item) {
@@ -193,6 +194,7 @@ var DataTable = exports.DataTable = (_dec = (0, _aureliaTemplating.customElement
           });
         });
         _this.data = temp;
+        _this.pager.resource = temp;
       }
     }).catch(function (error) {
       _this.loading = false;
