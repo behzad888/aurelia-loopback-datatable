@@ -152,9 +152,16 @@ System.register(['aurelia-dependency-injection', 'aurelia-binding', 'aurelia-tem
         }
 
         DataTable.prototype.attached = function attached() {
+          var that = this;
           if (!this.repository && this.resource) {
             this.repository = this.entityManager.getRepository(this.resource);
+            var include = this.include != '' ? '?include[include]=' + this.include : '';
+            this.entityManager.getRepository(this.resource + "/count" + include).find().then(function (res) {
+              that.pages = Math.ceil(res.count / that.limit);
+              that.pager.reloadCount();
+            });
           }
+
 
           this.ready = true;
           this.criteria.where = this.where || {};
