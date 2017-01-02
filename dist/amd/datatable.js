@@ -545,7 +545,9 @@ define(['exports', 'aurelia-dependency-injection', 'aurelia-binding', 'aurelia-t
     initializer: null
   }), _descriptor21 = _applyDecoratedDescriptor(_class2.prototype, 'showInclude', [_aureliaTemplating.bindable], {
     enumerable: true,
-    initializer: null
+    initializer: function initializer() {
+      return false;
+    }
   }), _descriptor22 = _applyDecoratedDescriptor(_class2.prototype, 'include', [_aureliaTemplating.bindable], {
     enumerable: true,
     initializer: null

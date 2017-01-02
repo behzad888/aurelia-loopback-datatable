@@ -34,7 +34,7 @@ export class DataTable {
   @bindable route;
   @bindable pages;
   @bindable footer;
-  @bindable showInclude;
+  @bindable showInclude = false;
   @bindable include;
   @bindable mixed = [];
 

@@ -493,7 +493,9 @@ export let DataTable = (_dec = customElement('datatable'), _dec2 = resolvedView(
   initializer: null
 }), _descriptor21 = _applyDecoratedDescriptor(_class2.prototype, 'showInclude', [bindable], {
   enumerable: true,
-  initializer: null
+  initializer: function () {
+    return false;
+  }
 }), _descriptor22 = _applyDecoratedDescriptor(_class2.prototype, 'include', [bindable], {
   enumerable: true,
   initializer: null
