@@ -1,0 +1,94 @@
+<template>
+  <require from="../columns-filter"></require>
+  <require from="../convert-manager"></require>
+
+  <!-- Search bar -->
+  <div if.bind="searchable !== null" class="row">
+    <div class="col-xs-2">
+      <select value.bind="searchColumn" class="form-control" id="columnSelect">
+        <option
+          model.bind="columnLabel.column"
+          repeat.for="columnLabel of columnLabels | columnsFilter"
+          t="${columnLabel.label}"
+        >${columnLabel.label}</option>
+      </select>
+    </div>
+
+    <div class="col-xs-10">
+      <input
+        class="form-control"
+        type="text"
+        id="search"
+        t="[placeholder]Search"
+        placeholder="Search"
+        value.bind="search"
+        keyup.delegate="doSearch() & debounce:500">
+    </div>
+    <br/>
+  </div>
+
+  <table class="table table-striped table-bordered table-hover">
+    <thead>
+      <tr>
+        <!-- Labels -->
+        <th click.delegate="doSort(columnLabel)" repeat.for="columnLabel of columnLabels">
+          <!-- Just show the label -->
+          <span if.bind="sortable === null || columnLabel.nested" t="${columnLabel.label}">${columnLabel.label}</span>
+
+          <!-- Show label and make it sortable (click) -->
+          <a if.bind="sortable !== null && !columnLabel.nested">
+            <span t="${columnLabel.label}">${columnLabel.label}</span>
+            <i class="fa fa-${criteria.sort[columnLabel.column] ? (criteria.sort[columnLabel.column] === 'desc' ? 'caret-down' : 'caret-up') : 'sort'}">
+            </i>
+          </a>
+        </th>
+
+        <!-- Actions -->
+        <th show.bind="showActions() && hasVisibleActions" t="Actions">Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+
+      <tr if.bind="loadingIndicator && loading">
+        <td colspan="${columnLabels.length + (showActions() ? 1 : 0)}" innerhtml.bind="loadingIndicator"></td>
+      </tr>
+
+      <tr repeat.for="row of data" if.bind="!loading">
+
+        <!-- Columns -->
+        <td repeat.for="columnLabel of columnLabels">
+          <span if.bind="!columnLabel.route && !route && !select" innerhtml.bind="displayValue(row, columnLabel.column) | convertManager: columnLabel.converter"></span>
+          <a if.bind="route || select || columnLabel.route" click.delegate="selected(row, columnLabel)" innerhtml.bind="displayValue(row, columnLabel.column) | convertManager: columnLabel.converter"></a>
+        </td>
+
+        <!-- Actions -->
+        <td style="white-space: nowrap; width: 1px;" show.bind="showActions() && hasVisibleActions">
+          <button if.bind="edit !== null" class="btn btn-sm btn-white" click.delegate="doEdit(row)">
+            <i class="fa fa-pencil"></i>
+          </button>
+
+          <button if.bind="destroy !== null" class="btn btn-sm btn-danger" click.delegate="doDestroy(row)">
+            <i class="fa fa-trash"></i>
+          </button>
+
+          <button repeat.for="action of actions" if.bind="checkVisibility(action, row)" t="[title]${action.title}" title.bind="action.title || ''" disabled.bind="checkDisabled(action, row)" class="btn btn-sm btn-${action.type || 'default'}" click.trigger="doCustomAction(action, row)">
+            <i if.bind="action.icon" class="fa fa-${action.icon}"></i>
+            <span if.bind="!action.icon && action.title" t="${action.title}">${action.title}</span>
+          </button>
+        </td>
+      </tr>
+    </tbody>
+    <tfoot if.bind="footer" innerhtml.bind="footer"></tfoot>
+  </table>
+
+  <div show.bind="pages > 1">
+    <pager
+      resource.bind="repository"
+      criteria.bind="criteria.where"
+      page.bind="page"
+      pages.two-way="pages"
+      view-model.ref="pager"
+      limit.bind="limit"
+    ></pager>
+  </div>
+</template>
