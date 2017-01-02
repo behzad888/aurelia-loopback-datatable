@@ -36,6 +36,7 @@ export class DataTable {
   @bindable footer;
   @bindable showInclude;
   @bindable include;
+  @bindable mixed = [];
 
   loading = false;
   hasVisibleActions = false;
@@ -102,6 +103,11 @@ export class DataTable {
           var temp = [];
           result.forEach(item => {
             item[this.include].forEach(inner => {
+              if (this.mixed != []) {
+                mixed.forEach(function (element) {
+                  inner[element] = item[element];
+                }, this);
+              }
               temp.push(inner);
             })
           })

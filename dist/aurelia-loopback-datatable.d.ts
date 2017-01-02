@@ -47,6 +47,7 @@ export declare class DataTable {
   footer: any;
   showInclude: any;
   include: any;
+  mixed: any;
   loading: any;
   hasVisibleActions: any;
   constructor(router?: any, element?: any, entityManager?: any);

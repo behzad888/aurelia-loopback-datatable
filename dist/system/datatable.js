@@ -3,7 +3,7 @@
 System.register(['aurelia-dependency-injection', 'aurelia-binding', 'aurelia-templating', 'aurelia-view-manager', 'aurelia-orm', 'aurelia-router', 'homefront'], function (_export, _context) {
   "use strict";
 
-  var inject, bindingMode, computedFrom, bindable, customElement, resolvedView, EntityManager, Router, Homefront, _typeof, _createClass, _dec, _dec2, _dec3, _dec4, _dec5, _dec6, _class, _desc, _value, _class2, _descriptor, _descriptor2, _descriptor3, _descriptor4, _descriptor5, _descriptor6, _descriptor7, _descriptor8, _descriptor9, _descriptor10, _descriptor11, _descriptor12, _descriptor13, _descriptor14, _descriptor15, _descriptor16, _descriptor17, _descriptor18, _descriptor19, _descriptor20, _descriptor21, _descriptor22, DataTable;
+  var inject, bindingMode, computedFrom, bindable, customElement, resolvedView, EntityManager, Router, Homefront, _typeof, _createClass, _dec, _dec2, _dec3, _dec4, _dec5, _dec6, _class, _desc, _value, _class2, _descriptor, _descriptor2, _descriptor3, _descriptor4, _descriptor5, _descriptor6, _descriptor7, _descriptor8, _descriptor9, _descriptor10, _descriptor11, _descriptor12, _descriptor13, _descriptor14, _descriptor15, _descriptor16, _descriptor17, _descriptor18, _descriptor19, _descriptor20, _descriptor21, _descriptor22, _descriptor23, DataTable;
 
   function _initDefineProp(target, property, descriptor, context) {
     if (!descriptor) return;
@@ -141,6 +141,8 @@ System.register(['aurelia-dependency-injection', 'aurelia-binding', 'aurelia-tem
 
           _initDefineProp(this, 'include', _descriptor22, this);
 
+          _initDefineProp(this, 'mixed', _descriptor23, this);
+
           this.loading = false;
           this.hasVisibleActions = false;
 
@@ -205,6 +207,11 @@ System.register(['aurelia-dependency-injection', 'aurelia-binding', 'aurelia-tem
               var temp = [];
               result.forEach(function (item) {
                 item[_this.include].forEach(function (inner) {
+                  if (_this.mixed != []) {
+                    mixed.forEach(function (element) {
+                      inner[element] = item[element];
+                    }, _this);
+                  }
                   temp.push(inner);
                 });
               });
@@ -558,6 +565,11 @@ System.register(['aurelia-dependency-injection', 'aurelia-binding', 'aurelia-tem
       }), _descriptor22 = _applyDecoratedDescriptor(_class2.prototype, 'include', [bindable], {
         enumerable: true,
         initializer: null
+      }), _descriptor23 = _applyDecoratedDescriptor(_class2.prototype, 'mixed', [bindable], {
+        enumerable: true,
+        initializer: function initializer() {
+          return [];
+        }
       }), _applyDecoratedDescriptor(_class2.prototype, 'columnLabels', [_dec6], Object.getOwnPropertyDescriptor(_class2.prototype, 'columnLabels'), _class2.prototype)), _class2)) || _class) || _class) || _class));
 
       _export('DataTable', DataTable);
