@@ -184,8 +184,8 @@ var DataTable = exports.DataTable = (_dec = (0, _aureliaTemplating.customElement
         var temp = [];
         result.forEach(function (item) {
           item[_this.include].forEach(function (inner) {
-            if (_this.mixed != []) {
-              mixed.forEach(function (element) {
+            if (_this.mixed.length != 0) {
+              _this.mixed.forEach(function (element) {
                 inner[element] = item[element];
               }, _this);
             }

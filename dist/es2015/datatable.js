@@ -162,8 +162,8 @@ export let DataTable = (_dec = customElement('datatable'), _dec2 = resolvedView(
         var temp = [];
         result.forEach(item => {
           item[this.include].forEach(inner => {
-            if (this.mixed != []) {
-              mixed.forEach(function (element) {
+            if (this.mixed.length != 0) {
+              this.mixed.forEach(function (element) {
                 inner[element] = item[element];
               }, this);
             }
