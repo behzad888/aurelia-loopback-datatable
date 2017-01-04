@@ -83,8 +83,7 @@
 
   <div show.bind="pages > 1">
     <pager
-      resource.bind="repository"
-      criteria.bind="criteria.where"
+      resource.bind="data"
       page.bind="page"
       pages.two-way="pages"
       view-model.ref="pager"

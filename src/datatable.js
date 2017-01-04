@@ -48,18 +48,18 @@ export class DataTable {
   }
 
   attached() {
-    let that = this;
-    if (!this.repository && this.resource) {
-      this.repository = this.entityManager.getRepository(this.resource);
-      var include = this.include != '' ? '?include[include]=' + this.include : '';
-      this.entityManager.getRepository(this.resource + "/count" + include).find().then(res => {
-        that.pages = Math.ceil(res.count / that.limit);
-        that.pager.reloadCount();
-      });
-    }
+    // let that = this;
     // if (!this.repository && this.resource) {
     //   this.repository = this.entityManager.getRepository(this.resource);
+    //   var include = this.include != '' ? '?include[include]=' + this.include : '';
+    //   this.entityManager.getRepository(this.resource + "/count" + include).find().then(res => {
+    //     that.pages = Math.ceil(res.count / that.limit);
+    //     that.pager.reloadCount();
+    //   });
     // }
+    if (!this.repository && this.resource) {
+      this.repository = this.entityManager.getRepository(this.resource);
+    }
 
     this.ready = true;
     this.criteria.where = this.where || {};
