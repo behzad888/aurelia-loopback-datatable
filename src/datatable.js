@@ -15,7 +15,7 @@ export class DataTable {
 
   @bindable({ defaultBindingMode: bindingMode.twoWay })
   where = {};
-
+  search = '';
   @bindable limit = 30;
   @bindable columns = '';
   @bindable searchColumn = 'name';
@@ -37,6 +37,7 @@ export class DataTable {
   @bindable showInclude = false;
   @bindable include;
   @bindable mixed = [];
+  @bindable pagesApi = '';
 
   loading = false;
   hasVisibleActions = false;
@@ -48,24 +49,47 @@ export class DataTable {
   }
 
   attached() {
-    // let that = this;
-    // if (!this.repository && this.resource) {
-    //   this.repository = this.entityManager.getRepository(this.resource);
-    //   var include = this.include != '' ? '?include[include]=' + this.include : '';
-    //   this.entityManager.getRepository(this.resource + "/count" + include).find().then(res => {
-    //     that.pages = Math.ceil(res.count / that.limit);
-    //     that.pager.reloadCount();
-    //   });
-    // }
+    let that = this;
     if (!this.repository && this.resource) {
       this.repository = this.entityManager.getRepository(this.resource);
+      this.initPager();
     }
 
     this.ready = true;
     this.criteria.where = this.where || {};
     this.criteria.sort = this.criteria.sort || {};
+    this.criteria.filter = this.criteria.filter || {
+      include: {
+        relation: null,
+        scope: { where: {} },
+        skip: null,
+        limit: null
+      },
+      scope: {},
+      where: {}
+    }
 
     this.load();
+  }
+
+  initPager() {
+    let that = this;
+    if (this.pagesApi != '') {
+      this.entityManager.getRepository(this.pagesApi).find().then(res => {
+        var filter = JSON.parse(that.pagesApi.substring(that.pagesApi.indexOf('=') + 1));
+        var pageCount = 0;
+        res.forEach(item => {
+          pageCount += parseInt(item[filter.counts + 'Count']);
+        })
+        that.pages = Math.ceil(pageCount / that.limit);
+        that.reloadPage();
+      });
+    } else {
+      this.entityManager.getRepository(this.resource + "/count").find().then(res => {
+        that.pages = Math.ceil(res.count / that.limit);
+        that.reloadPage();
+      });
+    }
   }
 
   detached() {
@@ -88,11 +112,41 @@ export class DataTable {
     this.load();
   }
 
+  clean(obj) {
+    for (var propName in obj) {
+      var value = obj[propName];
+      if (value === "" || value === null) {
+        delete obj[propName];
+      } else if (Object.prototype.toString.call(value) === '[object Object]') {
+        var hasProp = false;
+        for (var prop in value) {
+          if (value.hasOwnProperty(prop)) {
+            hasProp = true;
+          }
+        }
+        if (hasProp == true)
+          this.clean(value);
+        else
+          delete obj[propName];
+      } else if (Array.isArray(value)) {
+        value.forEach(function (item) {
+          this.clean(v);
+        }, this);
+      }
+    }
+  }
+
   load() {
     this.loading = true;
-
-    this.criteria.skip = (this.page * this.limit) - this.limit;
-    this.criteria.limit = this.limit;
+    if (this.showInclude == false) {
+      this.criteria['filter']['skip'] = (this.page * this.limit) - this.limit;
+      this.criteria['filter']['limit'] = this.limit;
+    } else {
+      if (!this.criteria.filter.include.scope)
+        this.criteria.filter.include.scope = {};
+      this.criteria['filter']['include']['scope']['skip'] = (this.page * this.limit) - this.limit;
+      this.criteria['filter']['include']['scope']['limit'] = this.limit;
+    }
 
     if (!this.populate) {
       this.criteria.populate = null;
@@ -102,12 +156,15 @@ export class DataTable {
       this.criteria.populate = this.populate.join(',');
     }
 
-    this.repository.find(this.criteria, true)
+    this.clean(this.criteria.filter);
+    this.clean(this.criteria.filter);
+    var filter = { "filter": JSON.stringify(this.criteria.filter) }
+
+    this.repository.find(filter, true)
       .then(result => {
         this.loading = false;
         if (this.showInclude == false) {
           this.data = result;
-          this.pager.resource = result;
         } else {
           var temp = [];
           result.forEach(item => {
@@ -121,9 +178,9 @@ export class DataTable {
             })
           })
           this.data = temp;
-          this.pager.resource = temp;
         }
-        // this.data = result;
+        this.pager.pages = this.pages;
+        this.reloadPage()
       })
       .catch(error => {
         this.loading = false;
@@ -236,24 +293,42 @@ export class DataTable {
     if (!this.ready) {
       return;
     }
-
-    if (typeof this.criteria.where[this.searchColumn] === 'object') {
-      this.criteria.where[this.searchColumn].contains = this.search;
+    this.criteria.filter.where = {};
+    if (!this.criteria.filter.include)
+      this.criteria.filter.include = {};
+    if (!this.criteria.filter.include.scope)
+      this.criteria.filter.include.scope = {};
+    this.criteria.filter.include.scope.where = {};
+    if (this.showInclude != false) {
+      if (typeof this.criteria.filter.include.scope.where[this.searchColumn] === 'object') {
+        this.criteria.filter.include.scope.where[this.searchColumn].like = this.search;
+      } else {
+        this.criteria.filter.include.scope.where[this.searchColumn] = { like: this.search };
+      }
     } else {
-      this.criteria.where[this.searchColumn] = { contains: this.search };
+
+      if (typeof this.criteria.filter.where[this.searchColumn] === 'object') {
+        this.criteria.filter.where[this.searchColumn].like = this.search;
+      } else {
+        this.criteria.filter.where[this.searchColumn] = { like: this.search };
+      }
     }
 
     if (!this.ready) {
       return;
     }
-
-    this.pager.reloadCount();
+    this.reloadPage();
 
     this.load();
   }
 
+  reloadPage() {
+    this.pager.resource = undefined;
+    this.pager.reloadCount();
+  }
+
   reload() {
-    this.pager.reloadCount(); // reload the amount of results
+    this.reloadPage(); // reload the amount of results
 
     if (this.page === 1) {
       this.load(); // this.pageChanged() won't trigger if the current page is already page 1.

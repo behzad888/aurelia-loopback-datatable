@@ -27,6 +27,7 @@ export declare class ConvertManagerValueConverter {
 export declare class DataTable {
   criteria: any;
   where: any;
+  search: any;
   limit: any;
   columns: any;
   searchColumn: any;
@@ -48,13 +49,16 @@ export declare class DataTable {
   showInclude: any;
   include: any;
   mixed: any;
+  pagesApi: any;
   loading: any;
   hasVisibleActions: any;
   constructor(router?: any, element?: any, entityManager?: any);
   attached(): any;
+  initPager(): any;
   detached(): any;
   pageChanged(): any;
   limitChanged(): any;
+  clean(obj?: any): any;
   load(): any;
   gatherData(criteria?: any): any;
   populateEntity(row?: any): any;
@@ -67,6 +71,7 @@ export declare class DataTable {
   doSort(columnLabel?: any): any;
   searchColumnChanged(newValue?: any, oldValue?: any): any;
   doSearch(): any;
+  reloadPage(): any;
   reload(): any;
   columnLabels: any;
   triggerEvent(event?: any, payload?: any): any;

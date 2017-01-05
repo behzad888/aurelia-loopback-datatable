@@ -3,7 +3,7 @@
 System.register(['aurelia-dependency-injection', 'aurelia-binding', 'aurelia-templating', 'aurelia-view-manager', 'aurelia-orm', 'aurelia-router', 'homefront'], function (_export, _context) {
   "use strict";
 
-  var inject, bindingMode, computedFrom, bindable, customElement, resolvedView, EntityManager, Router, Homefront, _typeof, _createClass, _dec, _dec2, _dec3, _dec4, _dec5, _dec6, _class, _desc, _value, _class2, _descriptor, _descriptor2, _descriptor3, _descriptor4, _descriptor5, _descriptor6, _descriptor7, _descriptor8, _descriptor9, _descriptor10, _descriptor11, _descriptor12, _descriptor13, _descriptor14, _descriptor15, _descriptor16, _descriptor17, _descriptor18, _descriptor19, _descriptor20, _descriptor21, _descriptor22, _descriptor23, DataTable;
+  var inject, bindingMode, computedFrom, bindable, customElement, resolvedView, EntityManager, Router, Homefront, _typeof, _createClass, _dec, _dec2, _dec3, _dec4, _dec5, _dec6, _class, _desc, _value, _class2, _descriptor, _descriptor2, _descriptor3, _descriptor4, _descriptor5, _descriptor6, _descriptor7, _descriptor8, _descriptor9, _descriptor10, _descriptor11, _descriptor12, _descriptor13, _descriptor14, _descriptor15, _descriptor16, _descriptor17, _descriptor18, _descriptor19, _descriptor20, _descriptor21, _descriptor22, _descriptor23, _descriptor24, DataTable;
 
   function _initDefineProp(target, property, descriptor, context) {
     if (!descriptor) return;
@@ -101,6 +101,8 @@ System.register(['aurelia-dependency-injection', 'aurelia-binding', 'aurelia-tem
 
           _initDefineProp(this, 'where', _descriptor2, this);
 
+          this.search = '';
+
           _initDefineProp(this, 'limit', _descriptor3, this);
 
           _initDefineProp(this, 'columns', _descriptor4, this);
@@ -143,6 +145,8 @@ System.register(['aurelia-dependency-injection', 'aurelia-binding', 'aurelia-tem
 
           _initDefineProp(this, 'mixed', _descriptor23, this);
 
+          _initDefineProp(this, 'pagesApi', _descriptor24, this);
+
           this.loading = false;
           this.hasVisibleActions = false;
 
@@ -152,15 +156,47 @@ System.register(['aurelia-dependency-injection', 'aurelia-binding', 'aurelia-tem
         }
 
         DataTable.prototype.attached = function attached() {
+          var that = this;
           if (!this.repository && this.resource) {
             this.repository = this.entityManager.getRepository(this.resource);
+            this.initPager();
           }
 
           this.ready = true;
           this.criteria.where = this.where || {};
           this.criteria.sort = this.criteria.sort || {};
+          this.criteria.filter = this.criteria.filter || {
+            include: {
+              relation: null,
+              scope: { where: {} },
+              skip: null,
+              limit: null
+            },
+            scope: {},
+            where: {}
+          };
 
           this.load();
+        };
+
+        DataTable.prototype.initPager = function initPager() {
+          var that = this;
+          if (this.pagesApi != '') {
+            this.entityManager.getRepository(this.pagesApi).find().then(function (res) {
+              var filter = JSON.parse(that.pagesApi.substring(that.pagesApi.indexOf('=') + 1));
+              var pageCount = 0;
+              res.forEach(function (item) {
+                pageCount += parseInt(item[filter.counts + 'Count']);
+              });
+              that.pages = Math.ceil(pageCount / that.limit);
+              that.reloadPage();
+            });
+          } else {
+            this.entityManager.getRepository(this.resource + "/count").find().then(function (res) {
+              that.pages = Math.ceil(res.count / that.limit);
+              that.reloadPage();
+            });
+          }
         };
 
         DataTable.prototype.detached = function detached() {
@@ -183,13 +219,39 @@ System.register(['aurelia-dependency-injection', 'aurelia-binding', 'aurelia-tem
           this.load();
         };
 
+        DataTable.prototype.clean = function clean(obj) {
+          for (var propName in obj) {
+            var value = obj[propName];
+            if (value === "" || value === null) {
+              delete obj[propName];
+            } else if (Object.prototype.toString.call(value) === '[object Object]') {
+              var hasProp = false;
+              for (var prop in value) {
+                if (value.hasOwnProperty(prop)) {
+                  hasProp = true;
+                }
+              }
+              if (hasProp == true) this.clean(value);else delete obj[propName];
+            } else if (Array.isArray(value)) {
+              value.forEach(function (item) {
+                this.clean(v);
+              }, this);
+            }
+          }
+        };
+
         DataTable.prototype.load = function load() {
           var _this = this;
 
           this.loading = true;
-
-          this.criteria.skip = this.page * this.limit - this.limit;
-          this.criteria.limit = this.limit;
+          if (this.showInclude == false) {
+            this.criteria['filter']['skip'] = this.page * this.limit - this.limit;
+            this.criteria['filter']['limit'] = this.limit;
+          } else {
+            if (!this.criteria.filter.include.scope) this.criteria.filter.include.scope = {};
+            this.criteria['filter']['include']['scope']['skip'] = this.page * this.limit - this.limit;
+            this.criteria['filter']['include']['scope']['limit'] = this.limit;
+          }
 
           if (!this.populate) {
             this.criteria.populate = null;
@@ -199,11 +261,14 @@ System.register(['aurelia-dependency-injection', 'aurelia-binding', 'aurelia-tem
             this.criteria.populate = this.populate.join(',');
           }
 
-          this.repository.find(this.criteria, true).then(function (result) {
+          this.clean(this.criteria.filter);
+          this.clean(this.criteria.filter);
+          var filter = { "filter": JSON.stringify(this.criteria.filter) };
+
+          this.repository.find(filter, true).then(function (result) {
             _this.loading = false;
             if (_this.showInclude == false) {
               _this.data = result;
-              _this.pager.resource = result;
             } else {
               var temp = [];
               result.forEach(function (item) {
@@ -217,8 +282,9 @@ System.register(['aurelia-dependency-injection', 'aurelia-binding', 'aurelia-tem
                 });
               });
               _this.data = temp;
-              _this.pager.resource = temp;
             }
+            _this.pager.pages = _this.pages;
+            _this.reloadPage();
           }).catch(function (error) {
             _this.loading = false;
             _this.triggerEvent('exception', { on: 'load', error: error });
@@ -334,24 +400,40 @@ System.register(['aurelia-dependency-injection', 'aurelia-binding', 'aurelia-tem
           if (!this.ready) {
             return;
           }
-
-          if (_typeof(this.criteria.where[this.searchColumn]) === 'object') {
-            this.criteria.where[this.searchColumn].contains = this.search;
+          this.criteria.filter.where = {};
+          if (!this.criteria.filter.include) this.criteria.filter.include = {};
+          if (!this.criteria.filter.include.scope) this.criteria.filter.include.scope = {};
+          this.criteria.filter.include.scope.where = {};
+          if (this.showInclude != false) {
+            if (_typeof(this.criteria.filter.include.scope.where[this.searchColumn]) === 'object') {
+              this.criteria.filter.include.scope.where[this.searchColumn].like = this.search;
+            } else {
+              this.criteria.filter.include.scope.where[this.searchColumn] = { like: this.search };
+            }
           } else {
-            this.criteria.where[this.searchColumn] = { contains: this.search };
+
+            if (_typeof(this.criteria.filter.where[this.searchColumn]) === 'object') {
+              this.criteria.filter.where[this.searchColumn].like = this.search;
+            } else {
+              this.criteria.filter.where[this.searchColumn] = { like: this.search };
+            }
           }
 
           if (!this.ready) {
             return;
           }
-
-          this.pager.reloadCount();
+          this.reloadPage();
 
           this.load();
         };
 
-        DataTable.prototype.reload = function reload() {
+        DataTable.prototype.reloadPage = function reloadPage() {
+          this.pager.resource = undefined;
           this.pager.reloadCount();
+        };
+
+        DataTable.prototype.reload = function reload() {
+          this.reloadPage();
 
           if (this.page === 1) {
             this.load();
@@ -573,6 +655,11 @@ System.register(['aurelia-dependency-injection', 'aurelia-binding', 'aurelia-tem
         enumerable: true,
         initializer: function initializer() {
           return [];
+        }
+      }), _descriptor24 = _applyDecoratedDescriptor(_class2.prototype, 'pagesApi', [bindable], {
+        enumerable: true,
+        initializer: function initializer() {
+          return '';
         }
       }), _applyDecoratedDescriptor(_class2.prototype, 'columnLabels', [_dec6], Object.getOwnPropertyDescriptor(_class2.prototype, 'columnLabels'), _class2.prototype)), _class2)) || _class) || _class) || _class));
 
