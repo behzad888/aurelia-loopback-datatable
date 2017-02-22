@@ -14,7 +14,7 @@
   },
   "license": "CC0-1.0",
   "author": "Rob Eisenberg <rob@bluespire.com> (http://robeisenberg.com/)",
-  "main": "dist/commonjs/aurelia-datatable.js",
+  "main": "dist/commonjs/aurelia-loopback-datatable.js",
   "typings": "dist/aurelia-datatable.d.ts",
   "repository": {
     "type": "git",
@@ -29,7 +29,7 @@
   },
   "jspm": {
     "registry": "npm",
-    "main": "aurelia-datatable",
+    "main": "aurelia-loopback-datatable",
     "format": "amd",
     "directories": {
       "dist": "dist/amd"
