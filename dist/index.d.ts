@@ -1,0 +1,1 @@
+export * from 'aurelia-loopback-datatable/aurelia-loopback-datatable';
