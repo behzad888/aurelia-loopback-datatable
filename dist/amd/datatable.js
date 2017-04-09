@@ -327,12 +327,12 @@ define(['exports', 'aurelia-dependency-injection', 'aurelia-binding', 'aurelia-t
         var _criteria$searchcapti;
 
         this.criteria[this.searchcaption][this.searchColumn].contains = this.search;
-        this.criteria[this.searchcaption]['where'] = (_criteria$searchcapti = {}, _criteria$searchcapti[this.searchColumn] = { "like": ".*" + this.search }, _criteria$searchcapti);
+        this.criteria[this.searchcaption]['where'] = (_criteria$searchcapti = {}, _criteria$searchcapti[this.searchColumn] = { "like": this.search, options: 'i' }, _criteria$searchcapti);
       } else {
         var _criteria$searchcapti2;
 
         this.criteria[this.searchcaption][this.searchColumn] = { contains: this.search };
-        this.criteria[this.searchcaption]['where'] = (_criteria$searchcapti2 = {}, _criteria$searchcapti2[this.searchColumn] = { "like": ".*" + this.search }, _criteria$searchcapti2);
+        this.criteria[this.searchcaption]['where'] = (_criteria$searchcapti2 = {}, _criteria$searchcapti2[this.searchColumn] = { "like": this.search, options: 'i' }, _criteria$searchcapti2);
       }
 
       this.pager.reloadCount();

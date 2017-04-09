@@ -243,10 +243,10 @@ export class DataTable {
         this.criteria[this.searchcaption]['where'] = undefined;
       else if (typeof this.criteria[this.searchcaption][this.searchColumn] === 'object') {
         this.criteria[this.searchcaption][this.searchColumn].contains = this.search;
-        this.criteria[this.searchcaption]['where'] = { [this.searchColumn]: { "like": ".*" + this.search } };
+        this.criteria[this.searchcaption]['where'] = { [this.searchColumn]: { "like": this.search, options: 'i' } };
       } else {
         this.criteria[this.searchcaption][this.searchColumn] = { contains: this.search };
-        this.criteria[this.searchcaption]['where'] = { [this.searchColumn]: { "like": ".*" + this.search } };
+        this.criteria[this.searchcaption]['where'] = { [this.searchColumn]: { "like":  this.search, options: 'i' } };
       }
 
     this.pager.reloadCount();
