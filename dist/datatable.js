@@ -219,7 +219,8 @@ export class DataTable {
     this.criteria.sort = {
       [column]: this.criteria.sort[column] === 'asc' ? 'desc' : 'asc'
     };
-    this.criteria['filter']["order"] = column + " " + (this.criteria.sort[column] === 'ASC' ? 'DESC' : 'ASC');
+    this.criteria['filter']== undefined ? {} : this.criteria['filter']
+    this.criteria['filter']["order"] = column + " " + (this.criteria.sort[column].toLowerCase() === 'ASC'.toLocaleLowerCase() ? 'DESC' : 'ASC');
     this.load();
   }
 

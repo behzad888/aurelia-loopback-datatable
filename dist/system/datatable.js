@@ -320,7 +320,8 @@ System.register(['aurelia-dependency-injection', 'aurelia-binding', 'aurelia-tem
           }
 
           this.criteria.sort = (_criteria$sort = {}, _criteria$sort[column] = this.criteria.sort[column] === 'asc' ? 'desc' : 'asc', _criteria$sort);
-          this.criteria['filter']["order"] = column + " " + (this.criteria.sort[column] === 'ASC' ? 'DESC' : 'ASC');
+          this.criteria['filter'] == undefined ? {} : this.criteria['filter'];
+          this.criteria['filter']["order"] = column + " " + (this.criteria.sort[column].toLowerCase() === 'ASC'.toLocaleLowerCase() ? 'DESC' : 'ASC');
           this.load();
         };
 
