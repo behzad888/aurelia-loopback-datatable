@@ -311,13 +311,16 @@ System.register(['aurelia-dependency-injection', 'aurelia-binding', 'aurelia-tem
         };
 
         DataTable.prototype.doSort = function doSort(columnLabel) {
+          var _criteria$sort;
+
           var column = columnLabel.column;
 
           if (this.sortable === null || !this.isSortable(column)) {
             return;
           }
 
-          this.criteria[this.searchcaption]["order"] = column + " " + (this.criteria.sort[column] === 'ASC' ? 'DESC' : 'ASC');
+          this.criteria.sort = (_criteria$sort = {}, _criteria$sort[column] = this.criteria.sort[column] === 'asc' ? 'desc' : 'asc', _criteria$sort);
+          this.criteria['filter']["order"] = column + " " + (this.criteria.sort[column] === 'ASC' ? 'DESC' : 'ASC');
           this.load();
         };
 

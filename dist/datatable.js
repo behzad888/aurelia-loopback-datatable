@@ -216,7 +216,10 @@ export class DataTable {
     // };
     // add order to filter 
     //this.criteria[this.searchcaption]["order"] = [column] + " " + (this.criteria.sort[column] === 'asc' ? 'desc' : 'asc');
-     this.criteria[this.searchcaption]["order"] = column + " " + (this.criteria.sort[column] === 'ASC' ? 'DESC' : 'ASC');
+    this.criteria.sort = {
+      [column]: this.criteria.sort[column] === 'asc' ? 'desc' : 'asc'
+    };
+    this.criteria['filter']["order"] = column + " " + (this.criteria.sort[column] === 'ASC' ? 'DESC' : 'ASC');
     this.load();
   }
 

@@ -266,7 +266,10 @@ export let DataTable = (_dec = customElement('datatable'), _dec2 = resolvedView(
       return;
     }
 
-    this.criteria[this.searchcaption]["order"] = column + " " + (this.criteria.sort[column] === 'ASC' ? 'DESC' : 'ASC');
+    this.criteria.sort = {
+      [column]: this.criteria.sort[column] === 'asc' ? 'desc' : 'asc'
+    };
+    this.criteria['filter']["order"] = column + " " + (this.criteria.sort[column] === 'ASC' ? 'DESC' : 'ASC');
     this.load();
   }
 
