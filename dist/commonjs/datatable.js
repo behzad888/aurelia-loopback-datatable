@@ -297,7 +297,7 @@ var DataTable = exports.DataTable = (_dec = (0, _aureliaTemplating.customElement
     }
 
     this.criteria.sort = (_criteria$sort = {}, _criteria$sort[column] = this.criteria.sort[column] === 'asc' ? 'desc' : 'asc', _criteria$sort);
-    this.criteria['filter'] == undefined ? {} : this.criteria['filter'];
+    this.criteria['filter'] = this.criteria['filter'] == undefined ? {} : this.criteria['filter'];
     this.criteria['filter']["order"] = column + " " + (this.criteria.sort[column].toLowerCase() === 'ASC'.toLocaleLowerCase() ? 'DESC' : 'ASC');
     this.load();
   };
