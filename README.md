@@ -1,4 +1,4 @@
-# aurelia-skeleton-plugin
+# aurelia-loopback-datatable
 
 [![ZenHub](https://raw.githubusercontent.com/ZenHubIO/support/master/zenhub-badge.png)](https://zenhub.io)
 [![Join the chat at https://gitter.im/aurelia/discuss](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/aurelia/discuss?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
@@ -17,19 +17,25 @@ To build the code, follow these steps.
   ```shell
   npm install
   ```
-3. Ensure that [Gulp](http://gulpjs.com/) is installed. If you need to install it, use the following command:
+
+3. From the project folder, execute the following command:
+
+  ```shell
+  jspm install
+  ```
+4. Ensure that [Gulp](http://gulpjs.com/) is installed. If you need to install it, use the following command:
 
   ```shell
   npm install -g gulp
   ```
-4. To build the code, you can now run:
+5. To build the code, you can now run:
 
   ```shell
   gulp build
   ```
-5. You will find the compiled code in the `dist` folder, available in three module formats: AMD, CommonJS and ES6.
+6. You will find the compiled code in the `dist` folder, available in three module formats: AMD, CommonJS and ES6.
 
-6. See `gulpfile.js` for other tasks related to generating the docs and linting.
+7. See `gulpfile.js` for other tasks related to generating the docs and linting.
 
 ## Running The Tests
 
