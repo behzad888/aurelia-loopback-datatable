@@ -52,11 +52,13 @@ export class DataTable {
     let that = this;
     if (!this.repository && this.resource) {
       this.repository = this.entityManager.getRepository(this.resource);
-      var include = this.include != '' ? '?include[include]=' + this.include : '';
-      this.entityManager.getRepository(this.resource + "/count" + include).find().then(res => {
-        that.pages = Math.ceil(res.count / that.limit);
-        that.pager.reloadCount();
-      });
+      if (this.showInclude != false) {
+        var include = this.include != '' ? '?include[include]=' + this.include : '';
+        this.entityManager.getRepository(this.resource + "/count" + include).find().then(res => {
+          that.pages = Math.ceil(res.count / that.limit);
+          that.pager.reloadCount();
+        });
+      }
     }
 
     this.ready = true;
@@ -89,7 +91,8 @@ export class DataTable {
 
   load() {
     this.loading = true;
-
+    if (!this.pager.criteria)
+      this.pager.criteria = {};
     this.criteria.skip = (this.page * this.limit) - this.limit;
     this.criteria.limit = this.limit;
 
@@ -101,6 +104,16 @@ export class DataTable {
     if (this.include != '') {
       this.criteria[this.searchcaption]["include"] = this.include
     }
+    if (this.searchcaption == 'where') {
+      this.criteria['filter']['limit'] = this.limit;
+      this.criteria['filter']['skip'] = this.criteria.skip;
+      this.pager.criteria['where'] = this.criteria['filter']['where'];
+    }
+
+    this.pager.criteria['limit'] = this.pager.limit;
+    this.pager.criteria['skip'] = this.criteria.skip;
+    this.pagerCriteria = this.pager.criteria;
+
     if (this.filterWhere.length != 0) {
       this.filterWhere.forEach(item => {
         this.criteria[this.searchcaption][item.key] = item.value;
@@ -120,7 +133,6 @@ export class DataTable {
         this.loading = false;
         if (this.showInclude == false) {
           this.data = result;
-          this.pager.resource = result;
         } else {
           var temp = [];
           result.forEach(item => {
@@ -129,9 +141,8 @@ export class DataTable {
             })
           })
           this.data = temp;
-          this.pager.resource = temp;
         }
-
+        this.pager.reloadCount();
       })
       .catch(error => {
         this.loading = false;
@@ -238,7 +249,8 @@ export class DataTable {
     if (!this.ready) {
       return;
     }
-    if (this.search !== undefined)
+    if (this.search !== undefined) {
+
       if (this.search.trim() == "")
         this.criteria[this.searchcaption]['where'] = undefined;
       else if (typeof this.criteria[this.searchcaption][this.searchColumn] === 'object') {
@@ -246,8 +258,13 @@ export class DataTable {
         this.criteria[this.searchcaption]['where'] = { [this.searchColumn]: { "like": this.search, options: 'i' } };
       } else {
         this.criteria[this.searchcaption][this.searchColumn] = { contains: this.search };
-        this.criteria[this.searchcaption]['where'] = { [this.searchColumn]: { "like":  this.search, options: 'i' } };
+        this.criteria[this.searchcaption]['where'] = { [this.searchColumn]: { "like": this.search, options: 'i' } };
       }
+
+      if (this.searchcaption == 'where')
+        this.criteria['filter']['where'][this.searchColumn] = { "like": this.search, options: 'i' };
+
+    }
 
     this.pager.reloadCount();
 

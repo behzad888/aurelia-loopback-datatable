@@ -141,11 +141,13 @@ define(['exports', 'aurelia-dependency-injection', 'aurelia-binding', 'aurelia-t
       var that = this;
       if (!this.repository && this.resource) {
         this.repository = this.entityManager.getRepository(this.resource);
-        var include = this.include != '' ? '?include[include]=' + this.include : '';
-        this.entityManager.getRepository(this.resource + "/count" + include).find().then(function (res) {
-          that.pages = Math.ceil(res.count / that.limit);
-          that.pager.reloadCount();
-        });
+        if (this.showInclude != false) {
+          var include = this.include != '' ? '?include[include]=' + this.include : '';
+          this.entityManager.getRepository(this.resource + "/count" + include).find().then(function (res) {
+            that.pages = Math.ceil(res.count / that.limit);
+            that.pager.reloadCount();
+          });
+        }
       }
 
       this.ready = true;
@@ -180,7 +182,7 @@ define(['exports', 'aurelia-dependency-injection', 'aurelia-binding', 'aurelia-t
       var _this = this;
 
       this.loading = true;
-
+      if (!this.pager.criteria) this.pager.criteria = {};
       this.criteria.skip = this.page * this.limit - this.limit;
       this.criteria.limit = this.limit;
 
@@ -191,6 +193,16 @@ define(['exports', 'aurelia-dependency-injection', 'aurelia-binding', 'aurelia-t
       if (this.include != '') {
         this.criteria[this.searchcaption]["include"] = this.include;
       }
+      if (this.searchcaption == 'where') {
+        this.criteria['filter']['limit'] = this.limit;
+        this.criteria['filter']['skip'] = this.criteria.skip;
+        this.pager.criteria['where'] = this.criteria['filter']['where'];
+      }
+
+      this.pager.criteria['limit'] = this.pager.limit;
+      this.pager.criteria['skip'] = this.criteria.skip;
+      this.pagerCriteria = this.pager.criteria;
+
       if (this.filterWhere.length != 0) {
         this.filterWhere.forEach(function (item) {
           _this.criteria[_this.searchcaption][item.key] = item.value;
@@ -208,7 +220,6 @@ define(['exports', 'aurelia-dependency-injection', 'aurelia-binding', 'aurelia-t
         _this.loading = false;
         if (_this.showInclude == false) {
           _this.data = result;
-          _this.pager.resource = result;
         } else {
           var temp = [];
           result.forEach(function (item) {
@@ -217,8 +228,8 @@ define(['exports', 'aurelia-dependency-injection', 'aurelia-binding', 'aurelia-t
             });
           });
           _this.data = temp;
-          _this.pager.resource = temp;
         }
+        _this.pager.reloadCount();
       }).catch(function (error) {
         _this.loading = false;
         _this.triggerEvent('exception', { on: 'load', error: error });
@@ -323,16 +334,21 @@ define(['exports', 'aurelia-dependency-injection', 'aurelia-binding', 'aurelia-t
       if (!this.ready) {
         return;
       }
-      if (this.search !== undefined) if (this.search.trim() == "") this.criteria[this.searchcaption]['where'] = undefined;else if (_typeof(this.criteria[this.searchcaption][this.searchColumn]) === 'object') {
-        var _criteria$searchcapti;
+      if (this.search !== undefined) {
 
-        this.criteria[this.searchcaption][this.searchColumn].contains = this.search;
-        this.criteria[this.searchcaption]['where'] = (_criteria$searchcapti = {}, _criteria$searchcapti[this.searchColumn] = { "like": this.search, options: 'i' }, _criteria$searchcapti);
-      } else {
-        var _criteria$searchcapti2;
+        if (this.search.trim() == "") this.criteria[this.searchcaption]['where'] = undefined;else if (_typeof(this.criteria[this.searchcaption][this.searchColumn]) === 'object') {
+          var _criteria$searchcapti;
 
-        this.criteria[this.searchcaption][this.searchColumn] = { contains: this.search };
-        this.criteria[this.searchcaption]['where'] = (_criteria$searchcapti2 = {}, _criteria$searchcapti2[this.searchColumn] = { "like": this.search, options: 'i' }, _criteria$searchcapti2);
+          this.criteria[this.searchcaption][this.searchColumn].contains = this.search;
+          this.criteria[this.searchcaption]['where'] = (_criteria$searchcapti = {}, _criteria$searchcapti[this.searchColumn] = { "like": this.search, options: 'i' }, _criteria$searchcapti);
+        } else {
+          var _criteria$searchcapti2;
+
+          this.criteria[this.searchcaption][this.searchColumn] = { contains: this.search };
+          this.criteria[this.searchcaption]['where'] = (_criteria$searchcapti2 = {}, _criteria$searchcapti2[this.searchColumn] = { "like": this.search, options: 'i' }, _criteria$searchcapti2);
+        }
+
+        if (this.searchcaption == 'where') this.criteria['filter']['where'][this.searchColumn] = { "like": this.search, options: 'i' };
       }
 
       this.pager.reloadCount();

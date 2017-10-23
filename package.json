@@ -1,6 +1,6 @@
 {
   "name": "aurelia-loopback-datatable",
-  "version": "0.3.3",
+  "version": "0.4.0",
   "description": "A 100% Aurelia based data table component for Loopback.",
   "keywords": [
     "aurelia",

@@ -84,11 +84,11 @@
   <div show.bind="pages > 1">
     <pager
       resource.bind="repository"
-      criteria.bind="criteria.where"
       page.bind="page"
       pages.two-way="pages"
       view-model.ref="pager"
       limit.bind="limit"
+      criteria.bind="pagerCriteria"
     ></pager>
   </div>
 </template>
