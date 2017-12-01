@@ -177,6 +177,7 @@ export let DataTable = (_dec = customElement('datatable'), _dec2 = resolvedView(
     if (this.filterWhere.length != 0) {
       this.filterWhere.forEach(item => {
         this.criteria[this.searchcaption][item.key] = item.value;
+        if (item.key === 'where') this.pager.criteria[item.key] = item.value;
       });
     }
     if (!this.populate) {

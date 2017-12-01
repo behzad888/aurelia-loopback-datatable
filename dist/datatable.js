@@ -117,6 +117,8 @@ export class DataTable {
     if (this.filterWhere.length != 0) {
       this.filterWhere.forEach(item => {
         this.criteria[this.searchcaption][item.key] = item.value;
+        if (item.key === 'where')
+          this.pager.criteria[item.key] = item.value;
       });
 
     }

@@ -206,6 +206,7 @@ define(['exports', 'aurelia-dependency-injection', 'aurelia-binding', 'aurelia-t
       if (this.filterWhere.length != 0) {
         this.filterWhere.forEach(function (item) {
           _this.criteria[_this.searchcaption][item.key] = item.value;
+          if (item.key === 'where') _this.pager.criteria[item.key] = item.value;
         });
       }
       if (!this.populate) {

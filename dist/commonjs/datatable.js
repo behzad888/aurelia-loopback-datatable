@@ -199,6 +199,7 @@ var DataTable = exports.DataTable = (_dec = (0, _aureliaTemplating.customElement
     if (this.filterWhere.length != 0) {
       this.filterWhere.forEach(function (item) {
         _this.criteria[_this.searchcaption][item.key] = item.value;
+        if (item.key === 'where') _this.pager.criteria[item.key] = item.value;
       });
     }
     if (!this.populate) {
